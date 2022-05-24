@@ -13,6 +13,7 @@ var mysqlconnect = mysql.createConnection({
 })
 
 var exp = require('express')
+const res = require('express/lib/response')
 var router = exp.Router()
 
 router.get('/',(req,res)=>{
@@ -29,6 +30,30 @@ router.get('/feed',async (req,res)=>{
     // vaproapp = result.slice(0,20)
     console.log(result);
     res.send(result)
+})
+router.post('/acao',(req,res) => {
+    var idNoticia = req.query.idNot
+    var idUser = req.query.idUser
+    var like = req.query.like
+    var dislike = req.query.dislike
+    //if(dislike && !like)
+    mysqlconnect.query(`insert into acoesfeed (idNot,idUser,curtida,dislike) values (?,?,?,?)`,[idNoticia,idUser,like,dislike],(err,rows,fields) => {
+        if(!err){
+            res.send({linhas: rows,status: 'ok'})
+        } else{
+            res.send({erro:err,status:'falha'})
+        }
+    })
+})
+router.get('/getAcao',(req,res) => {
+    var idNoticia = req.query.idNot
+    var idUser = req.query.idUser
+    mysqlconnect.query(`select * from acoesfeed where idNot = ? and idUser = ?`,[idNoticia,idUser],(err,rows,fields) => {
+        if(err)
+        res.send({erro:err,status:'falha'})
+        else
+        res.send({linhas:rows,status:'ok'})
+    })
 })
 
 module.exports = router;
