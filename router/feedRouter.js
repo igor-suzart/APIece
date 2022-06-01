@@ -55,5 +55,14 @@ router.get('/getAcao',(req,res) => {
         res.send({linhas:rows,status:'ok'})
     })
 })
-
+router.get('/getNotComents',(req,res) =>{
+    var idNot = req.query.idNot
+    var limit = req.query.limit
+    mysqlconnect.query(`select * from acoesfeed where idNot = ? and comentário is not null limit ${limit}`,[idNot],(err,rows,fields) => {
+        if(err)
+        res.send({erro:err,status:'falha'})
+        else
+        res.send({linhas:rows,status:'ok'})
+    })
+})
 module.exports = router;
