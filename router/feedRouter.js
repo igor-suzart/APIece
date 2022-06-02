@@ -14,6 +14,7 @@ var mysqlconnect = mysql.createConnection({
 
 var exp = require('express')
 const res = require('express/lib/response')
+const { nanoid } = require('nanoid')
 var router = exp.Router()
 
 router.get('/',(req,res)=>{
@@ -36,8 +37,13 @@ router.post('/acao',(req,res) => {
     var idUser = req.query.idUser
     var like = req.query.like
     var dislike = req.query.dislike
+    var comentario = req.query.comentario
+    var idComentario = null
+    if(comentario){
+      idComentario = nanoid()
+    }
     //if(dislike && !like)
-    mysqlconnect.query(`insert into acoesfeed (idNot,idUser,curtida,dislike) values (?,?,?,?)`,[idNoticia,idUser,like,dislike],(err,rows,fields) => {
+    mysqlconnect.query(`insert into acoesfeed (idNot,idUser,curtida,dislike,comentario,idComentario) values (?,?,?,?,?,?)`,[idNoticia,idUser,like,dislike,comentario,idComentario],(err,rows,fields) => {
         if(!err){
             res.send({linhas: rows,status: 'ok'})
         } else{
@@ -58,11 +64,24 @@ router.get('/getAcao',(req,res) => {
 router.get('/getNotComents',(req,res) =>{
     var idNot = req.query.idNot
     var limit = req.query.limit
-    mysqlconnect.query(`select * from acoesfeed where idNot = ? and comentário is not null limit ${limit}`,[idNot],(err,rows,fields) => {
+    mysqlconnect.query(`select * from acoesfeed where idNot = ? and comentario is not null limit ${limit}`,[idNot],(err,rows,fields) => {
         if(err)
         res.send({erro:err,status:'falha'})
         else
         res.send({linhas:rows,status:'ok'})
     })
+})
+router.post('/postNoticia',(req,res) => {
+  let dados = JSON.parse(req.query.data)
+  mysqlconnect.query(`insert into noticias (title,url,description,image,sourceUrl,name) values (?,?,?,?,?,?)`,
+[dados.title,dados.url,dados.description,dados.image,dados.sourceUrl,dados.name],
+(err,rows,fields) => {
+  if(err)
+  res.send({erro:err,status:'falha'})
+  else
+  res.send({linhas:rows,status: 'ok'})
+})
+  //console.log(dados.title)
+  //res.send({dados,status:'ok'})
 })
 module.exports = router;
