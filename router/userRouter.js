@@ -45,15 +45,41 @@ router.get('/login',(req,res) => {
                 delete rows[0].senha
                 res.send({linhas:rows,status: 'ok'})
             } else{
-                res.send({erro:'Senha incorreta',status: 'falha'}) 
+                res.send({erro:'Senha incorreta',status: 'falha'})
             }
         }
         else{
             res.send({erro:'Usuário não encontrado',status: 'falha'})
         }
-        
+
     })
 })
+router.get('/getUsuario',(req,res) => {
+    //res.send(req.query)
+    let idUser = req.query.idUser
+    mysqlconnect.query(`select * from usuarios where id = ?`,[idUser],(err,rows,fields) => {
+        if(!err && rows.length > 0){
+            console.log(rows);
+            let linha = rows[0]
+            delete rows[0].senha
+            res.send({linhas:rows,status: 'ok'})
+        }
+        else{
+            res.send({erro:'Usuário não encontrado',status: 'falha'})
+        }
 
+    })
+})
+router.post('/postAvatar',(req,res) => {
+  let idUser = req.query.idUser
+  let img = req.query.avatar
+  mysqlconnect.query(`update usuarios set foto = ? where id = ? `,
+  [img,idUser],(err,rows,fields) => {
+    if(err)
+    res.send({error: err,status: 'falha'})
+    else
+    res.send({linhas: rows,status: 'ok'})
+  })
+})
 
 module.exports = router;

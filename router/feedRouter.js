@@ -39,11 +39,12 @@ router.post('/acao',(req,res) => {
     var dislike = req.query.dislike
     var comentario = req.query.comentario
     var idComentario = null
+    var naoVerificada= req.query.naoVerificada
     if(comentario){
       idComentario = nanoid()
     }
     //if(dislike && !like)
-    mysqlconnect.query(`insert into acoesfeed (idNot,idUser,curtida,dislike,comentario,idComentario) values (?,?,?,?,?,?)`,[idNoticia,idUser,like,dislike,comentario,idComentario],(err,rows,fields) => {
+    mysqlconnect.query(`insert into acoesfeed (idNot,idUser,curtida,dislike,comentario,idComentario,naoVerificada) values (?,?,?,?,?,?,?)`,[idNoticia,idUser,like,dislike,comentario,idComentario,naoVerificada],(err,rows,fields) => {
         if(!err){
             res.send({linhas: rows,status: 'ok'})
         } else{
@@ -55,6 +56,16 @@ router.get('/getAcao',(req,res) => {
     var idNoticia = req.query.idNot
     var idUser = req.query.idUser
     mysqlconnect.query(`select * from acoesfeed where idNot = ? and idUser = ?`,[idNoticia,idUser],(err,rows,fields) => {
+        if(err)
+        res.send({erro:err,status:'falha'})
+        else
+        res.send({linhas:rows,status:'ok'})
+    })
+})
+router.get('/getAcaoNaoVeri',(req,res) => {
+    var idNoticia = req.query.idNot
+    var idUser = req.query.idUser
+    mysqlconnect.query(`select * from acoesfeed where idNot = ? and naoVerificada = 1`,[idNoticia],(err,rows,fields) => {
         if(err)
         res.send({erro:err,status:'falha'})
         else
@@ -73,15 +84,23 @@ router.get('/getNotComents',(req,res) =>{
 })
 router.post('/postNoticia',(req,res) => {
   let dados = JSON.parse(req.query.data)
-  mysqlconnect.query(`insert into noticias (title,url,description,image,sourceUrl,name) values (?,?,?,?,?,?)`,
-[dados.title,dados.url,dados.description,dados.image,dados.sourceUrl,dados.name],
+  let id = nanoid()
+  mysqlconnect.query(`insert into noticias (title,url,description,image,sourceUrl,name,id) values (?,?,?,?,?,?,?)`,
+[dados.title,dados.url,dados.description,dados.image,dados.sourceUrl,dados.name,id],
 (err,rows,fields) => {
   if(err)
   res.send({erro:err,status:'falha'})
   else
   res.send({linhas:rows,status: 'ok'})
 })
-  //console.log(dados.title)
-  //res.send({dados,status:'ok'})
+})
+router.get('/getNotPubli',(req,res) => {
+  let page = req.query.page
+  mysqlconnect.query(`select * from noticias`,(err,rows,fields) => {
+    if(err)
+    res.send({erro:err,status:'falha'})
+    else
+    res.send({articles:rows,status: 'ok'})
+  })
 })
 module.exports = router;
