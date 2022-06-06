@@ -55,7 +55,7 @@ router.post('/acao',(req,res) => {
 router.get('/getAcao',(req,res) => {
     var idNoticia = req.query.idNot
     var idUser = req.query.idUser
-    mysqlconnect.query(`select * from acoesfeed where idNot = ? and idUser = ?`,[idNoticia,idUser],(err,rows,fields) => {
+    mysqlconnect.query(`select acoesfeed.*,usuarios.* FROM acoesfeed left join usuarios on acoesfeed.idUser = usuarios.id where idNot = ? and idUser = ?`,[idNoticia,idUser],(err,rows,fields) => {
         if(err)
         res.send({erro:err,status:'falha'})
         else
@@ -65,7 +65,7 @@ router.get('/getAcao',(req,res) => {
 router.get('/getAcaoNaoVeri',(req,res) => {
     var idNoticia = req.query.idNot
     var idUser = req.query.idUser
-    mysqlconnect.query(`select * from acoesfeed where idNot = ? and naoVerificada = 1`,[idNoticia],(err,rows,fields) => {
+    mysqlconnect.query(`select acoesfeed.*,usuarios.* FROM acoesfeed left join usuarios on acoesfeed.idUser = usuarios.id where idNot = ? and naoVerificada = 1`,[idNoticia],(err,rows,fields) => {
         if(err)
         res.send({erro:err,status:'falha'})
         else
@@ -75,7 +75,7 @@ router.get('/getAcaoNaoVeri',(req,res) => {
 router.get('/getNotComents',(req,res) =>{
     var idNot = req.query.idNot
     var limit = req.query.limit
-    mysqlconnect.query(`select * from acoesfeed where idNot = ? and comentario is not null limit ${limit}`,[idNot],(err,rows,fields) => {
+    mysqlconnect.query(`select acoesfeed.*,usuarios.* FROM acoesfeed left join usuarios on acoesfeed.idUser = usuarios.id where idNot = ? and comentario is not null limit ${limit}`,[idNot],(err,rows,fields) => {
         if(err)
         res.send({erro:err,status:'falha'})
         else
